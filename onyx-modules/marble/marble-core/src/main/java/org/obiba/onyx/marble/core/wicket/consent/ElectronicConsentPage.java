@@ -21,7 +21,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.io.Streams;
-import org.obiba.onyx.marble.core.service.FdfProducer;
+import org.obiba.onyx.marble.core.FdfProducerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class ElectronicConsentPage extends WebPage implements IResourceListener 
   private static final String PDF_OPEN_PARAMETERS = "#toolbar=0&navpanes=0&scrollbar=1&zoom=80,0,0";
 
   @SpringBean
-  private FdfProducer fdfProducer;
+  private FdfProducerFactory fdfProducerFactory;
 
   private DynamicWebResource pdfResource;
 
@@ -57,7 +57,7 @@ public class ElectronicConsentPage extends WebPage implements IResourceListener 
           public byte[] getData() {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
-              Streams.copy(fdfProducer.getPdfTemplate(), baos);
+              Streams.copy(fdfProducerFactory.getFdfProducer().getPdfTemplate(), baos);
             } catch(IOException e) {
               throw new RuntimeException(e);
             }
@@ -94,7 +94,7 @@ public class ElectronicConsentPage extends WebPage implements IResourceListener 
               params.add("finishLinkId", finishButton.getMarkupId());
               String refuseUrl = RequestUtils.toAbsolutePath(urlFor(ElectronicConsentUploadPage.class, params).toString());
               try {
-                fdf = fdfProducer.buildFdf(pdfUrl, acceptUrl, refuseUrl);
+                fdf = fdfProducerFactory.getFdfProducer().buildFdf(pdfUrl, acceptUrl, refuseUrl);
               } catch(IOException e) {
                 fdf = null;
                 throw new RuntimeException(e);

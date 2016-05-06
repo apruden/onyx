@@ -92,6 +92,7 @@ public class FdfProducer {
    */
   public InputStream getPdfTemplate() throws IOException {
     Locale pdfLocale = activeConsentService.getConsent().getLocale();
+
     Resource pdfTemplate = consentFormTemplateLoader.getLocalizedResource(pdfLocale);
     if(pdfTemplate == null) {
       log.error("Expected non-null PDF template for locale {}. Make sure the ElectronicConsentTemplateLoader instance is configured properly.", pdfLocale);

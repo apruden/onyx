@@ -59,39 +59,26 @@ http://www.springframework.org/schema/tx http://www.springframework.org/schema/t
     <property name="activeInterviewService" ref="activeInterviewService" />
   </bean>
 
-  <bean id="fdfProducer" class="org.obiba.onyx.marble.core.service.FdfProducer" scope="prototype">
+  <bean id="fdfProducerFactory" class="org.obiba.onyx.marble.core.FdfProducerFactory">
+    <property name="activeInterviewService" ref="activeInterviewService" />
+  </bean>
+
+  <bean id="fdfProducer" class="org.obiba.onyx.marble.core.service.FdfProducer" scope="prototype" lazy-init="true">
     <property name="consentFormTemplateLoader" ref="consentFormTemplateLoader" />
     <property name="activeConsentService" ref="activeConsentService" />
     <property name="activeInterviewService" ref="activeInterviewService" />
     <property name="userService" ref="userService" />
     <property name="appConfigService" ref="appConfigService" />
     <!-- See java.text.SimpleDateFormat for details for possible date formating -->
-    <property name="dateFormat" value="${org.obiba.onyx.marble.consent.dateFormat}" />
+    <!--<property name="dateFormat" value="${org.obiba.onyx.marble.consent.dateFormat}" />-->
+    <property name="dateFormat" value="#{ fdfProducerFactory.stageName }" />
   </bean>
 
-  <bean id="consentFormTemplateLoader" class="org.obiba.onyx.core.io.support.LocalizedResourceLoader">
+  <bean id="consentFormTemplateLoader" class="org.obiba.onyx.marble.core.StageLocalizedResourceLoader" scope="prototype" lazy-init="true">
     <property name="resourcePath" value="${org.obiba.onyx.marble.resources.path}" />
     <property name="resourceName" value="${org.obiba.onyx.marble.consent.basename}" />
     <property name="resourceExtension" value=".pdf" />
   </bean>
 
   <bean id="consentBeanResolver" class="org.obiba.onyx.marble.magma.ConsentBeanResolver" />
-
-  <bean id="consentForm" class="org.obiba.onyx.print.impl.PdfVariableReport" scope="session">
-    <property name="name" value="${org.obiba.onyx.marble.consent.basename}" />
-    <property name="label">
-      <bean class="org.springframework.context.support.DefaultMessageSourceResolvable">
-        <constructor-arg value="ConsentFormLabel" />
-      </bean>
-    </property>
-    <property name="readyConditionConfigPath" value="${org.obiba.onyx.marble.path}" />
-    <property name="pdfVariablePath" value="Consent:pdfForm" />
-    <property name="dataCollectionMode">
-      <bean class="org.obiba.onyx.core.data.VariableDataSource">
-        <constructor-arg value="Consent:mode" />
-      </bean>
-    </property>
-    <property name="magmaInstanceProvider" ref="magmaInstanceProvider"/>
-  </bean>
-
 </beans>

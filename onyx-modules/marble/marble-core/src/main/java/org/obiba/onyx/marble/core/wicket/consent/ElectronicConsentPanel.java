@@ -12,20 +12,31 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.link.InlineFrame;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.obiba.onyx.core.service.ActiveInterviewService;
 import org.obiba.onyx.marble.core.service.ActiveConsentService;
 import org.obiba.onyx.wicket.wizard.WizardForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ElectronicConsentPanel extends Panel {
 
   private static final long serialVersionUID = 1L;
 
+  private static final Logger log = LoggerFactory.getLogger(ElectronicConsentPanel.class);
+
   @SpringBean
   private ActiveConsentService activeConsentService;
+
+  @SpringBean
+  private ActiveInterviewService activeInterviewService;
 
   private WizardForm form;
 
   public ElectronicConsentPanel(String id, WizardForm form) {
     super(id);
+
+    log.error(">>>>> " + activeInterviewService.getInteractiveStage().getName());
+
     setOutputMarkupId(true);
     this.form = form;
   }
