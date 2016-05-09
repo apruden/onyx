@@ -10,7 +10,6 @@
 package org.obiba.onyx.marble.engine;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +33,7 @@ import org.obiba.onyx.engine.state.TransitionEvent;
 import org.obiba.onyx.magma.CompositeVariableValueSourceFactory;
 import org.obiba.onyx.magma.CustomVariablesRegistry;
 import org.obiba.onyx.magma.PrebuiltVariableValueSourceFactory;
+import org.obiba.onyx.marble.core.StagePropertyResolver;
 import org.obiba.onyx.marble.core.service.ConsentService;
 import org.obiba.onyx.marble.core.wicket.consent.ElectronicConsentUploadPage;
 import org.obiba.onyx.marble.domain.consent.Consent;
@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.lowagie.text.pdf.AcroFields;
 import com.lowagie.text.pdf.PdfReader;
@@ -61,13 +62,13 @@ public class MarbleModule implements Module, ValueTableFactoryBeanProvider, Appl
 
   private StageManager stageManager;
 
-  private Map<String, String> variableToFieldMap = new HashMap<String, String>();
-
   private ConsentBeanResolver beanResolver;
 
   private VariableEntityProvider variableEntityProvider;
 
   private CustomVariablesRegistry customVariablesRegistry;
+
+  private StagePropertyResolver stagePropertyResolver;
 
   //
   // Module Methods
@@ -159,7 +160,7 @@ public class MarbleModule implements Module, ValueTableFactoryBeanProvider, Appl
       b.setVariableEntityProvider(variableEntityProvider);
 
       ConsentVariableValueSourceFactory consentVariableFactory = new ConsentVariableValueSourceFactory(stage.getName());
-      consentVariableFactory.setVariableToFieldMap(variableToFieldMap);
+      consentVariableFactory.setVariableToFieldMap(getVariableToFieldMap(stagePropertyResolver.getVariableToFieldMap(stage.getName())));
 
       PrebuiltVariableValueSourceFactory customVariableFactory = new PrebuiltVariableValueSourceFactory();
       customVariableFactory.addVariableValueSources(customVariablesRegistry.getVariables(b.getValueTableName()));
@@ -219,8 +220,8 @@ public class MarbleModule implements Module, ValueTableFactoryBeanProvider, Appl
     return form.getField(fieldName);
   }
 
-  public void setVariableToFieldMap(String keyValuePairs) {
-    variableToFieldMap.clear();
+  private Map<String, String> getVariableToFieldMap(String keyValuePairs) {
+    Map<String, String> variableToFieldMap = Maps.newHashMap();
     // Get list of strings separated by the delimiter
     StringTokenizer tokenizer = new StringTokenizer(keyValuePairs, ",");
     while(tokenizer.hasMoreElements()) {
@@ -232,5 +233,12 @@ public class MarbleModule implements Module, ValueTableFactoryBeanProvider, Appl
         log.error("Could not identify PDF field name to variable path mapping: " + token);
       }
     }
+
+    return variableToFieldMap;
+  }
+
+  @Required
+  public void setStagePropertyResolver(StagePropertyResolver stagePropertyResolver) {
+    this.stagePropertyResolver = stagePropertyResolver;
   }
 }

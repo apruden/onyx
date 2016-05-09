@@ -5,3 +5,7 @@ target/
 *.iml
 atlassian-ide-plugin.xml
 overlays/
+.settings/
+.classpath/
+.project/
+*.prefs
