@@ -139,13 +139,13 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
     <property name="preventUserAttributeUsage" value="${org.obiba.onyx.password.validation.preventUserAttributeUsage}" />
   </bean>
 
-  <bean id="pdfTemplateEngine" class="org.obiba.onyx.print.impl.DefaultPdfTemplateEngine" scope="session">
+  <bean id="pdfTemplateEngine" class="org.obiba.onyx.print.impl.DefaultPdfTemplateEngine">
     <property name="dateFormat" value="${org.obiba.onyx.dateFormat}" />
     <property name="magmaInstanceProvider" ref="magmaInstanceProvider"/>
     <property name="messageSource" ref="messageSource"/>
   </bean>
 
-  <bean id="printableReportsRegistry" class="org.obiba.onyx.print.impl.DefaultPrintableReportsRegistry" scope="session">
+  <bean id="printableReportsRegistry" class="org.obiba.onyx.print.impl.DefaultPrintableReportsRegistry">
   </bean>
  
   <bean id="participantRegistry" class="org.obiba.onyx.spring.ParticipantRegistryFactoryBean" init-method="validateArgs">

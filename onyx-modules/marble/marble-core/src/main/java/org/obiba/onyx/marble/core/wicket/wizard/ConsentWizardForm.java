@@ -206,7 +206,7 @@ public class ConsentWizardForm extends WizardForm {
     Boolean consentIsElectronic = activeConsentService.getConsent().getMode() == ConsentMode.ELECTRONIC ? true : false;
 
     // Consent not submitted, inform the user that the submit button (PDF form) has to be clicked.
-    if(!consentIsSubmitted) {
+    /*if(!consentIsSubmitted) {
       error(getString("MissingConsentForm"));
       onError(target, form);
 
@@ -219,7 +219,7 @@ public class ConsentWizardForm extends WizardForm {
       onError(target, form);
 
       // Valid electronic consent, refused electronic consent, or manual consent.
-    } else {
+    } else {*/
       IStageExecution exec = activeInterviewService.getStageExecution((Stage) stageModel.getObject());
       ActionDefinition actionDef = exec.getSystemActionDefinition(ActionType.COMPLETE);
 
@@ -236,7 +236,7 @@ public class ConsentWizardForm extends WizardForm {
       if(actionDef != null) {
         getActionWindow().show(target, stageModel, actionDef);
       }
-    }
+    //}
 
     target.appendJavascript("Resizer.resizeWizard();");
     target.appendJavascript("Resizer.resizeConsentFrame();");

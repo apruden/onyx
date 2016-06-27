@@ -20,6 +20,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
         <property name="stageDescriptor" value="${org.obiba.onyx.marble.path}/stages.xml" />
       </bean>
     </property>
+    <property name="configPath" value="${org.obiba.onyx.marble.path}" />
     <property name="consentPropertiesResolver" ref="consentPropertiesResolver" />
     <property name="consentService" ref="consentService" />
     <property name="beanResolver" ref="consentBeanResolver" />
@@ -31,6 +32,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
       </bean>
     </property>
     <property name="customVariablesRegistry" ref="customVariablesRegistry" />
+    <property name="printableReportsRegistry" ref="printableReportsRegistry" />
   </bean>
 
   <bean id="baseMarbleStageState" parent="baseStageState" class="org.obiba.onyx.marble.engine.state.AbstractMarbleStageState"
@@ -50,7 +52,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
   <bean id="marbleCompletedState" parent="baseMarbleStageState" class="org.obiba.onyx.marble.engine.state.MarbleCompletedState"
     scope="prototype">
   </bean>
-  
+
   <bean id="marbleNotApplicableState" parent="baseMarbleStageState" class="org.obiba.onyx.marble.engine.state.MarbleNotApplicableState"
     scope="prototype">
   </bean>
@@ -86,20 +88,7 @@ http://www.springframework.org/schema/util http://www.springframework.org/schema
 
   <bean id="consentBeanResolver" class="org.obiba.onyx.marble.magma.ConsentBeanResolver" />
 
-  <bean id="consentForm" class="org.obiba.onyx.print.impl.PdfVariableReport" scope="session">
-    <property name="name" value="${org.obiba.onyx.marble.consent.basename}" />
-    <property name="label">
-      <bean class="org.springframework.context.support.DefaultMessageSourceResolvable">
-        <constructor-arg value="ConsentFormLabel" />
-      </bean>
-    </property>
-    <property name="readyConditionConfigPath" value="${org.obiba.onyx.marble.path}" />
-    <property name="pdfVariablePath" value="Consent:pdfForm" />
-    <property name="dataCollectionMode">
-      <bean class="org.obiba.onyx.core.data.VariableDataSource">
-        <constructor-arg value="Consent:mode" />
-      </bean>
-    </property>
+  <bean id="consentFormProto" class="org.obiba.onyx.print.impl.PdfVariableReport" scope="prototype">
     <property name="magmaInstanceProvider" ref="magmaInstanceProvider"/>
   </bean>
 </beans>

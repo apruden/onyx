@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import org.obiba.onyx.print.IPrintableReport;
 import org.obiba.onyx.print.PrintableReportsRegistry;
 import org.springframework.beans.BeansException;
@@ -26,16 +28,27 @@ public class DefaultPrintableReportsRegistry implements PrintableReportsRegistry
 
   private ApplicationContext applicationContext;
 
-  public Set<IPrintableReport> availableReports() {
-    return getReportsFromApplicationContext();
+  private Set<IPrintableReport> registeredReports = Sets.newHashSet();
+
+  @Override
+  public synchronized void registerReport(IPrintableReport report) {
+    if(!registeredReports.contains(report) && !getReportsFromApplicationContext().contains(report))
+      registeredReports.add(report);
   }
 
+  @Override
+  public Set<IPrintableReport> availableReports() {
+    return Sets.union(registeredReports, getReportsFromApplicationContext());
+  }
+
+  @Override
   public IPrintableReport getReportByName(String reportName) {
-    for(IPrintableReport report : getReportsFromApplicationContext()) {
+    for(IPrintableReport report : availableReports()) {
       if(report.getName().equals(reportName)) {
         return report;
       }
     }
+
     return null;
   }
 
@@ -45,9 +58,13 @@ public class DefaultPrintableReportsRegistry implements PrintableReportsRegistry
 
   protected Set<IPrintableReport> getReportsFromApplicationContext() {
     Map<String, IPrintableReport> printableReports = applicationContext.getBeansOfType(IPrintableReport.class);
-    Set<IPrintableReport> availableReports = new HashSet<IPrintableReport>();
-    availableReports.addAll(printableReports.values());
+    Set<IPrintableReport> availableReports = new HashSet<>();
+
+    for(IPrintableReport report : printableReports.values()) {
+      if (!Strings.isNullOrEmpty(report.getName()))
+        availableReports.add(report);
+    }
+
     return availableReports;
   }
-
 }

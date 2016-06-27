@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import com.thoughtworks.xstream.XStream;
 import org.obiba.core.spring.xstream.InjectingReflectionProviderWrapper;
 import org.obiba.onyx.core.data.AbstractBeanPropertyDataSource;
 import org.obiba.onyx.core.data.ComparingDataSource;
@@ -40,8 +41,6 @@ import org.springframework.context.MessageSourceResolvable;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-
-import com.thoughtworks.xstream.XStream;
 
 /**
  * Base implementation of a IPrintableReport.
@@ -150,7 +149,7 @@ abstract public class AbstractPrintableReport implements IPrintableReport, Appli
 
     if(readyConditionConfigPath != null) {
       Resource readyConditionFile = null;
-      InputStream readyConditionStream = null;
+      InputStream readyConditionStream;
       try {
         readyConditionFile = resourceLoader.getResource(readyConditionConfigPath + File.separator + getName() + "-condition.xml");
         readyConditionStream = readyConditionFile.getInputStream();
@@ -193,5 +192,20 @@ abstract public class AbstractPrintableReport implements IPrintableReport, Appli
 
   public void setResourceLoader(ResourceLoader resourceLoader) {
     this.resourceLoader = resourceLoader;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AbstractPrintableReport)) return false;
+
+    AbstractPrintableReport that = (AbstractPrintableReport) o;
+
+    return name != null ? name.equals(that.name) : that.name == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return name != null ? name.hashCode() : 0;
   }
 }

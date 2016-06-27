@@ -27,6 +27,7 @@ import org.obiba.magma.spring.BeanValueTableFactoryBean;
 import org.obiba.magma.spring.ValueTableFactoryBean;
 import org.obiba.magma.spring.ValueTableFactoryBeanProvider;
 import org.obiba.magma.support.VariableEntityProvider;
+import org.obiba.onyx.core.data.VariableDataSource;
 import org.obiba.onyx.core.domain.participant.Interview;
 import org.obiba.onyx.core.domain.participant.Participant;
 import org.obiba.onyx.engine.Module;
@@ -46,12 +47,15 @@ import org.obiba.onyx.marble.domain.consent.Consent;
 import org.obiba.onyx.marble.engine.state.AbstractMarbleStageState;
 import org.obiba.onyx.marble.magma.ConsentBeanResolver;
 import org.obiba.onyx.marble.magma.ConsentVariableValueSourceFactory;
+import org.obiba.onyx.print.PrintableReportsRegistry;
+import org.obiba.onyx.print.impl.PdfVariableReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 
 public class MarbleModule implements Module, ValueTableFactoryBeanProvider, ApplicationContextAware {
 
@@ -68,6 +72,10 @@ public class MarbleModule implements Module, ValueTableFactoryBeanProvider, Appl
   private VariableEntityProvider variableEntityProvider;
 
   private CustomVariablesRegistry customVariablesRegistry;
+
+  private PrintableReportsRegistry printableReportsRegistry;
+
+  private String configPath;
 
   public void setConsentPropertiesResolver(ConsentPropertiesResolver consentPropertiesResolver) {
     this.consentPropertiesResolver = consentPropertiesResolver;
@@ -111,6 +119,18 @@ public class MarbleModule implements Module, ValueTableFactoryBeanProvider, Appl
   public void initialize(WebApplication application) {
     // Mount page to specific URL so it can be called from <embed> tag (submit form button).
     application.mountBookmarkablePage("/uploadConsent", ElectronicConsentUploadPage.class);
+
+    for(Stage stage: getStages()) {
+      String stageName = stage.getName();
+      PdfVariableReport report = (PdfVariableReport) this.applicationContext.getBean("consentFormProto");
+      report.setPdfVariablePath(String.format("%s:pdfForm", stageName));
+      report.setName(String.format("%sForm", stageName));
+      report.setDataCollectionMode(new VariableDataSource(String.format("%s:mode", stageName)));
+      DefaultMessageSourceResolvable message = new DefaultMessageSourceResolvable(String.format("consent.%s.FormLabel", stageName));
+      report.setLabel(message);
+      report.setReadyConditionConfigPath(configPath);
+      printableReportsRegistry.registerReport(report);
+    }
   }
 
   public void shutdown(WebApplication application) {
@@ -246,5 +266,17 @@ public class MarbleModule implements Module, ValueTableFactoryBeanProvider, Appl
     }
 
     return variableToFieldMap;
+  }
+
+  public void setPrintableReportsRegistry(PrintableReportsRegistry printableReportsRegistry) {
+    this.printableReportsRegistry = printableReportsRegistry;
+  }
+
+  public String getConfigPath() {
+    return configPath;
+  }
+
+  public void setConfigPath(String configPath) {
+    this.configPath = configPath;
   }
 }

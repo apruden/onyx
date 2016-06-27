@@ -15,6 +15,7 @@ import java.util.Set;
  *
  */
 public interface PrintableReportsRegistry {
+  void registerReport(IPrintableReport report);
 
   Set<IPrintableReport> availableReports();
 
